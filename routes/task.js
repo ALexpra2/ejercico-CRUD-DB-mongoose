@@ -6,21 +6,26 @@ const Task = require("../models/Task.js");
 //generar una tarea
 router.post("/create", async(req, res) => {
     try {
-        const task = await Task.create(req.body); //Crea las tareas con los datos del cuerpo del mensaje
+        const task = await Task.create({...req.body, completed: 'No'}); 
+        //Crea las tareas con los datos del cuerpo del mensaje y el complete por defecto en no
+                
+        //const task = await Task.create(...req.body, completed: false);
+        //nos traemos del body el title y ponemos por defecto complete en false
+        
         res.status(201).send(task);
     } catch (error) {
         console.error(error);
         res
             .status(500)
-            .send({ message: "There was a problem trying to create a user" });
+            .send({ message: "There was a problem trying to create a task" });
     }
 });
 
 //Buscamos todos los registro de Task
 router.get("/", async(req, res) => {
     try {
-        const task = await Task.find({}); 
-        res.status(201).send(task);
+        const task = await Task.find(); 
+        res.status(200).send(task);
     } catch (error) {
         console.error(error);
         res
@@ -35,7 +40,7 @@ router.get("/id/:_id", async(req, res) => {
     const id = req.params._id;
     try {
         const task = await Task.findById(id)
-        res.status(201).send(task);
+        res.status(200).send(task);
     } catch (error) {
         console.error(error);
         res
@@ -49,8 +54,9 @@ router.get("/id/:_id", async(req, res) => {
 router.put("/markAsCompleted/:_id", async(req, res) => {
     const id = req.params._id;
     try {
-        const task = await Task.findByIdAndUpdate(id, { completed: 'yes' }) 
-        res.status(201).send(task);
+        const task = await Task.findByIdAndUpdate(id, { completed: 'yes' }, {new : true}) 
+        //con new evitamos tener que recargar la pagina para que haga el update
+        res.status(200).send(task);
     } catch (error) {
         console.error(error);
         res
@@ -64,7 +70,7 @@ router.put("/id/:_id", async(req, res) => {
     const id = req.params._id;
     const title = req.body.title;
     try {
-        const task = await Task.findByIdAndUpdate(id, {title})
+        const task = await Task.findByIdAndUpdate(id, {title},{new : true})
         res.status(201).send(task);
     } catch (error) {
         console.error(error);
@@ -79,7 +85,7 @@ router.put("/id/:_id", async(req, res) => {
 router.delete("/id/:_id", async(req, res) => {
     const id = req.params._id;
     try {
-        const task = await Task.deleteOne({ _id: id }); //Para delete hay que pasar el id como un objeto
+        const task = await Task.deleteOne({ _id: id }); //Para delete hay que pasar el id como un objeto poruqe es deleteone si es find and delete no hace falta
         res.status(201).send(task);
     } catch (error) {
         console.error(error);
